@@ -72,6 +72,7 @@ function showAllDepartments() {
 function showAllRoles() {
   connection.query(
     "SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.departments_id = departments.id;",
+    // "SELECT * FROM roles",
     function (err, results) {
       console.table(results);
       initPrompt();
@@ -108,28 +109,50 @@ const addDepartment = () => {
 };
 
 const addRole = () => {
-    inquirer.prompt([
-      {
-        name: "title",
-        type: "input",
-        message: "What is the new role title?",
-      },
-      {
-        name: "salary",
-        type: "input",
-        message: "What is the new salary for this role?",
-      },
-      {
-        name: "department",
-        type: "list",
-        choice: function () {
-            
+  connection.query(`SELECT * FROM departments`, (err, results) => {
+    inquirer
+      .prompt([
+        {
+          name: "title",
+          type: "input",
+          message: "What is the new role title?",
+        },
+        {
+          name: "salary",
+          type: "input",
+          message: "What is the new salary for this role?",
+        },
+        {
+          name: "department",
+          type: "list",
+          choices: function () {
+            let choiceArr = Array.from(
+              results.map((choice) => {
+                return {
+                  name: choice.name,
+                  value: choice.id,
+                };
+              })
+            );
+            return choiceArr;
           },
           message: "Choose the department for the new title?",
-        },
-    ])
-    .then((answers) => {
-        connection.query(`INSERT INTO roles(title, salary, department_id) VALUES("${answers.title}","${answers.salary}")`)
-        console.log()
-    })
-  }
+        },    
+      ])
+      
+      .then((answers) => {
+        connection.query(
+          `INSERT INTO roles(title, salary, departments_id) VALUES("${answers.title}",
+          "${answers.salary}","${answers.department}");`,
+          (err, results) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            console.log(answers);
+            initPrompt();
+          }
+        );
+      });
+  });
+};
