@@ -122,7 +122,7 @@ const addRole = () => {
       {
         name: "department",
         type: "list",
-        choices: function () {
+        choice: function () {
             
           },
           message: "Choose the department for the new title?",
