@@ -13,4 +13,6 @@ departments.name AS department,
 roles.salary AS salary, 
 employee.manager_id AS manager_id
 FROM employee JOIN roles JOIN departments 
-ON employee.roles_id = roles.id WHERE roles.departments_id = departments.id
+ON employee.roles_id = roles.id WHERE roles.departments_id = departments.id;
+
+
