@@ -2,7 +2,6 @@ const mysql = require("mysql2");
 const cTable = require("console.table");
 const inquirer = require("inquirer");
 
-
 const connection = mysql.createConnection(
   {
     host: "localhost",
@@ -14,8 +13,8 @@ const connection = mysql.createConnection(
 );
 
 connection.connect((err) => {
-    if (err) throw err;
-    initPrompt();
+  if (err) throw err;
+  initPrompt();
 });
 
 const initPrompt = () => {
@@ -64,14 +63,14 @@ const initPrompt = () => {
 };
 
 function showAllDepartments() {
-connection.query("SELECT * FROM departments;", function (err, results) {
+  connection.query("SELECT * FROM departments;", function (err, results) {
     console.table(results);
     initPrompt();
   });
 }
 
 function showAllRoles() {
-connection.query(
+  connection.query(
     "SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.departments_id = departments.id;",
     function (err, results) {
       console.table(results);
@@ -81,7 +80,7 @@ connection.query(
 }
 
 function showAllEmployees() {
-connection.query(
+  connection.query(
     "SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, roles.title AS title, departments.name AS department, roles.salary AS salary FROM employee JOIN roles JOIN departments ON employee.roles_id = roles.id WHERE roles.departments_id = departments.id;",
     function (err, results) {
       console.table(results);
@@ -101,11 +100,36 @@ const addDepartment = () => {
     ])
     .then((answers) => {
       connection.query(`INSERT INTO departments(name) VALUES(?)`, [
-        answers.departmentName
+        answers.departmentName,
       ]);
-      console.log(`Successfuly added Department "${answers.departmentName}"`)
+      console.log(`Successfuly added Department "${answers.departmentName}"`);
       initPrompt();
     });
 };
 
-
+const addRole = () => {
+    inquirer.prompt([
+      {
+        name: "title",
+        type: "input",
+        message: "What is the new role title?",
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "What is the new salary for this role?",
+      },
+      {
+        name: "department",
+        type: "list",
+        choices: function () {
+            
+          },
+          message: "Choose the department for the new title?",
+        },
+    ])
+    .then((answers) => {
+        connection.query(`INSERT INTO roles(title, salary, department_id) VALUES("${answers.title}","${answers.salary}")`)
+        console.log()
+    })
+  }
