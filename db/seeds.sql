@@ -23,3 +23,13 @@ VALUES ("William", "Su", 1),
        ("Harry", "Potter", 6),
        ("Tommy", "Wu", 7),
        ("Anthony", "Jones", 8);
+
+ALTER TABLE `employee` ADD COLUMN `manager_id` INT;
+
+UPDATE `employee` SET `manager_id` = 1 WHERE `roles_id` = 2;
+UPDATE `employee` SET `manager_id` = 3 WHERE `roles_id` = 4;
+UPDATE `employee` SET `manager_id` = 5 WHERE `roles_id` = 6;
+UPDATE `employee` SET `manager_id` = 7 WHERE `roles_id` = 8;  
+
+
+ 

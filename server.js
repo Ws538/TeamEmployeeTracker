@@ -2,7 +2,8 @@ const mysql = require("mysql2");
 const cTable = require("console.table");
 const inquirer = require("inquirer");
 
-const db = mysql.createConnection(
+
+const connection = mysql.createConnection(
   {
     host: "localhost",
     user: "root",
@@ -11,6 +12,11 @@ const db = mysql.createConnection(
   },
   console.log("Welcome to Team Employee Tracker")
 );
+
+connection.connect((err) => {
+    if (err) throw err;
+    initPrompt();
+});
 
 const initPrompt = () => {
   inquirer
@@ -41,19 +47,31 @@ const initPrompt = () => {
         case "View All Employees":
           showAllEmployees();
           break;
+        case "Add a Department":
+          addDepartment();
+          break;
+        case "Add a Role":
+          addRole();
+          break;
+        case "Add an Employee":
+          addEmployee();
+          break;
+        case "Update an Employee Role":
+          updateEmployeeRole();
+          break;
       }
     });
 };
 
 function showAllDepartments() {
-  db.query("SELECT * FROM departments;", function (err, results) {
+connection.query("SELECT * FROM departments;", function (err, results) {
     console.table(results);
     initPrompt();
   });
 }
 
 function showAllRoles() {
-  db.query(
+connection.query(
     "SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.departments_id = departments.id;",
     function (err, results) {
       console.table(results);
@@ -63,7 +81,7 @@ function showAllRoles() {
 }
 
 function showAllEmployees() {
-  db.query(
+connection.query(
     "SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, roles.title AS title, departments.name AS department, roles.salary AS salary FROM employee JOIN roles JOIN departments ON employee.roles_id = roles.id WHERE roles.departments_id = departments.id;",
     function (err, results) {
       console.table(results);
@@ -72,4 +90,22 @@ function showAllEmployees() {
   );
 }
 
-initPrompt();
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "departmentName",
+        message: "What is the name of the Department?",
+      },
+    ])
+    .then((answers) => {
+      connection.query(`INSERT INTO departments(name) VALUES(?)`, [
+        answers.departmentName
+      ]);
+      console.log(`Successfuly added Department "${answers.departmentName}"`)
+      initPrompt();
+    });
+};
+
+
