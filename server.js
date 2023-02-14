@@ -4,7 +4,7 @@ const inquirer = require("inquirer");
 
 const connection = mysql.createConnection(
   {
-    host: "localhost",
+    host: "127.0.0.1",
     user: "root",
     password: "happypass2012",
     database: "team_db",
@@ -159,7 +159,7 @@ const addRole = () => {
 
 const addEmployee = () => {
   connection.query(
-    `SELECT roles.id, roles.title, employee.id, employee.first_name, employee.last_name
+    `SELECT roles.id AS id, roles.title AS title, employee.id, employee.first_name, employee.last_name
      FROM roles
      JOIN employee ON roles.id = employee.roles_id`,
     (err, results) => {
@@ -218,11 +218,68 @@ const addEmployee = () => {
                 console.log(err);
                 return;
               }
-              console.log(`Successfully added employee: ${answers.fName} ${answers.lName}`);
+              console.log(
+                `Successfully added employee: ${answers.fName} ${answers.lName}`
+              );
               initPrompt();
             }
           );
         });
+    }
+  );
+};
+
+const updateEmployeeRole = () => {
+  connection.query(
+    `SELECT employee.id ,employee.first_name, employee.last_name, roles.title AS roles, roles.id AS roles_id FROM employee JOIN roles ON employee.roles_id = roles.id`,
+    (err, results) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      inquirer.prompt([
+        {
+          name: "name",
+          type: "list",
+          choices: function () {
+            let employeeChoices = results.map((employee) => {
+              return {
+                name: `${employee.first_name} ${employee.last_name}`,
+                value: { id: employee.id, name: `${employee.first_name} ${employee.last_name}` },
+              };
+            });
+            return employeeChoices;
+          },
+          message: "What is the name of the employee?",
+        },
+        {
+          name: "changeRole",
+          type: "list",
+          choices: function() {
+            let roleChange = results.map((employee) => {
+                return {
+                  name: employee.roles,
+                  value: employee.roles_id
+                };             
+            });
+            return roleChange
+          },
+          message: "Which role do you want to assign the selected employee?",
+        },
+      ])
+      .then((answers) => {
+        console.log(answers)
+        connection.query(`UPDATE employee SET roles_id = ${answers.changeRole} WHERE employee.id = ${answers.name.id}`,
+ 
+        err, results => {
+          if (err) {
+            console.log(err);
+            return;            
+          }
+          initPrompt()
+        })
+        
+      })
     }
   );
 };
