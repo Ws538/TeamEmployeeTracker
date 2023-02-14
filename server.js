@@ -159,7 +159,7 @@ const addRole = () => {
 
 const addEmployee = () => {
   connection.query(
-    `SELECT roles.id, roles.title, employee.id, employee.first_name, employee.last_name
+    `SELECT roles.id AS id, roles.title AS title, employee.id, employee.first_name, employee.last_name
      FROM roles
      JOIN employee ON roles.id = employee.roles_id`,
     (err, results) => {
@@ -283,3 +283,5 @@ const updateEmployeeRole = () => {
     }
   );
 };
+
+
